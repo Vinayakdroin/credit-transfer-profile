@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Lead Profile Maker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .hero {
+            text-align: center;
+            color: white;
+            padding: 40px 0;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(40, 167, 69, 0.4);
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .form-container.active {
+            display: block;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .question-group {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .range-container {
+            margin: 15px 0;
+        }
+
+        .range-value {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .range-input {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .submit-section {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            padding: 20px 50px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(220, 53, 69, 0.4);
+        }
+
+        .completion {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .completion.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .completion h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .completion p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(40, 167, 69, 0.4);
+        }
+
+        .restart-btn {
+            background: #6c757d;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .question-group {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero" id="hero">
+            <h1>🎓 Student Profile Creator</h1>
+            <p>Fill out your comprehensive profile - all questions on one page!</p>
+            <button class="start-btn" onclick="startForm()">Start Creating Profile</button>
+        </div>
+
+        <!-- Main Form -->
+        <div class="form-container" id="mainForm">
+            <!-- Contact Information -->
+            <div class="section-title">📞 Contact Information</div>
+            
+            <div class="question-group">
+                <label class="question-label">What's your full name? <span class="required">*</span></label>
+                <input type="text" id="fullName" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What should we call you? (Preferred name or nickname)</label>
+                <input type="text" id="preferredName" placeholder="How would you like to be addressed?">
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What's your email address? <span class="required">*</span></label>
+                <input type="email" id="email" placeholder="your.email@example.com" required>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What's your phone or WhatsApp number?</label>
+                <input type="tel" id="phone" placeholder="+91 98765 43210">
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">Where are you located?</label>
+                <input type="text" id="location" placeholder="City, State">
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What's the best way and time to contact you?</label>
+                <input type="text" id="contactPreference" placeholder="e.g., WhatsApp evenings, Email mornings">
+            </div>
+
+            <!-- Academic Background -->
+            <div class="section-title">🎓 Academic Background</div>
+
+            <div class="question-group">
+                <label class="question-label">What's your current institution and program?</label>
+                <input type="text" id="currentInstitution" placeholder="University name and degree program">
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What year/semester are you currently in?</label>
+                <input type="text" id="yearOfStudy" placeholder="e.g., 2nd Year, 4th Semester">
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What are your current grades or GPA?</label>
+                <input type="text" id="grades" placeholder="e.g., 8.5 CGPA, 85%">
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">Do you have any previous degrees or diplomas?</label>
+                <textarea id="previousDegrees" placeholder="List any completed degrees, diplomas, or certifications"></textarea>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">Which credits or modules do you want to transfer?</label>
+                <textarea id="creditsToTransfer" placeholder="Describe the subjects/credits you want to transfer"></textarea>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">Have you tried transferring credits before? What happened?</label>
+                <textarea id="priorTransferAttempts" placeholder="Share your previous transfer experiences"></textarea>
+            </div>
+
+            <!-- Goals & Motivations -->
+            <div class="section-title">🎯 Goals & Motivations</div>
+
+            <div class="question-group">
+                <label class="question-label">Why are you considering credit transfer?</label>
+                <textarea id="whyTransfer" placeholder="What's motivating you to transfer credits?"></textarea>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What's your ultimate goal with this transfer?</label>
+                <textarea id="ultimateGoal" placeholder="e.g., graduate faster, save money, change specialization"></textarea>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What obstacles or challenges have you faced so far?</label>
+                <textarea id="obstacles" placeholder="What's been holding you back?"></textarea>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What worries you most about the transfer process?</label>
+                <textarea id="worries" placeholder="What concerns do you have?"></textarea>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">How soon do you want to complete this transfer?</label>
+                <input type="text" id="timeline" placeholder="e.g., within 3 months, before next semester">
+            </div>
+
+            <!-- Preferences -->
+            <div class="section-title">⚙️ Preferences & Decision Factors</div>
+
+            <div class="question-group">
+                <label class="question-label">What's your preferred learning style?</label>
+                <select id="learningStyle">
+                    <option value="">Select your preference</option>
+                    <option value="self-paced">Self-Paced Learning</option>
+                    <option value="live">Live Sessions</option>
+                    <option value="blended">Mix of Both (Blended)</option>
+                </select>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">Who influences your educational decisions?</label>
+                <input type="text" id="keyInfluencers" placeholder="e.g., family, friends, seniors, online reviews">
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What's your budget range for this service?</label>
+                <input type="text" id="budgetRange" placeholder="e.g., ₹10,000 - ₹25,000">
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">How would you prefer to pay?</label>
+                <select id="paymentPreferences">
+                    <option value="">Select payment preference</option>
+                    <option value="one-time">One-time Payment</option>
+                    <option value="emi">Monthly EMI</option>
+                    <option value="scholarship">Need Scholarship Assistance</option>
+                </select>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What are your interests and career aspirations?</label>
+                <textarea id="uniqueInterests" placeholder="Tell us about your hobbies, career goals, what excites you"></textarea>
+            </div>
+
+            <!-- Psychometric Profile -->
+            <div class="section-title">🧠 Personal Insights</div>
+
+            <div class="question-group">
+                <label class="question-label">How would you rate yourself on taking risks?</label>
+                <div class="range-container">
+                    <div class="range-value" id="rangeValue">5</div>
+                    <input type="range" id="riskAversion" min="1" max="10" value="5" class="range-input" oninput="updateRangeValue(this.value)">
+                    <div class="range-labels">
+                        <span>Very Cautious (1)</span>
+                        <span>Risk Taker (10)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What's your biggest academic achievement so far?</label>
+                <textarea id="academicAchievement" placeholder="Share something you're proud of academically"></textarea>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">Describe your ideal study environment</label>
+                <textarea id="idealStudyEnvironment" placeholder="Where and how do you study best?"></textarea>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What are your top 3 values when choosing an educational institution?</label>
+                <textarea id="topValues" placeholder="e.g., reputation, affordability, flexibility"></textarea>
+            </div>
+
+            <div class="question-group">
+                <label class="question-label">What hobbies or passions can we connect with you about?</label>
+                <textarea id="hobbiesPassions" placeholder="What do you love doing in your free time?"></textarea>
+            </div>
+
+            <div class="submit-section">
+                <button class="submit-btn" onclick="generateProfile()">🎉 Generate My Profile PDF</button>
+            </div>
+        </div>
+
+        <!-- Completion Section -->
+        <div class="completion" id="completion">
+            <h2>🎉 Profile Generated Successfully!</h2>
+            <p>Your comprehensive student profile is ready for download as a beautiful PDF</p>
+            <button class="download-btn" onclick="downloadPDF()">📥 Download PDF Report</button>
+            <br><br>
+            <button class="restart-btn" onclick="restart()">Create Another Profile</button>
+        </div>
+    </div>
+
+    <script>
+        function startForm() {
+            document.getElementById('hero').style.display = 'none';
+            document.getElementById('mainForm').classList.add('active');
+        }
+
+        function updateRangeValue(value) {
+            document.getElementById('rangeValue').textContent = value;
+        }
+
+        function generateProfile() {
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            
+            if (!fullName || !email) {
+                alert('Please fill in the required fields (Full Name and Email)');
+                return;
+            }
+            
+            document.getElementById('mainForm').style.display = 'none';
+            document.getElementById('completion').classList.add('active');
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Colors
+            const primaryColor = [102, 126, 234];
+            const textColor = [51, 51, 51];
+            const lightBlue = [240, 243, 255];
+            
+            // Get all form data
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                preferredName: document.getElementById('preferredName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                location: document.getElementById('location').value,
+                contactPreference: document.getElementById('contactPreference').value,
+                currentInstitution: document.getElementById('currentInstitution').value,
+                yearOfStudy: document.getElementById('yearOfStudy').value,
+                grades: document.getElementById('grades').value,
+                previousDegrees: document.getElementById('previousDegrees').value,
+                creditsToTransfer: document.getElementById('creditsToTransfer').value,
+                priorTransferAttempts: document.getElementById('priorTransferAttempts').value,
+                whyTransfer: document.getElementById('whyTransfer').value,
+                ultimateGoal: document.getElementById('ultimateGoal').value,
+                obstacles: document.getElementById('obstacles').value,
+                worries: document.getElementById('worries').value,
+                timeline: document.getElementById('timeline').value,
+                learningStyle: document.getElementById('learningStyle').value,
+                keyInfluencers: document.getElementById('keyInfluencers').value,
+                budgetRange: document.getElementById('budgetRange').value,
+                paymentPreferences: document.getElementById('paymentPreferences').value,
+                uniqueInterests: document.getElementById('uniqueInterests').value,
+                riskAversion: document.getElementById('riskAversion').value,
+                academicAchievement: document.getElementById('academicAchievement').value,
+                idealStudyEnvironment: document.getElementById('idealStudyEnvironment').value,
+                topValues: document.getElementById('topValues').value,
+                hobbiesPassions: document.getElementById('hobbiesPassions').value
+            };
+            
+            // Title Page
+            doc.setFillColor(...primaryColor);
+            doc.rect(0, 0, 210, 70, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.text('STUDENT PROFILE REPORT', 105, 30, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'normal');
+            doc.text('Comprehensive Assessment & Lead Profile', 105, 45, { align: 'center' });
+            
+            // Student info box
+            doc.setFillColor(...lightBlue);
+            doc.rect(20, 80, 170, 30, 'F');
+            
+            doc.setTextColor(...textColor);
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text(formData.fullName || 'Student Name', 25, 90);
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Email: ${formData.email || 'Not provided'}`, 25, 100);
+            doc.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`, 25, 105);
+            
+            let yPos = 130;
+            
+            // Helper function to add Q&A
+            function addQA(question, answer, isSection = false) {
+                if (yPos > 260) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                if (isSection) {
+                    // Section header
+                    doc.setFillColor(...primaryColor);
+                    doc.rect(15, yPos - 5, 180, 15, 'F');
+                    
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(question, 20, yPos + 5);
+                    yPos += 25;
+                    return;
+                }
+                
+                // Question
+                doc.setTextColor(...primaryColor);
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                const questionLines = doc.splitTextToSize(`Q: ${question}`, 170);
+                questionLines.forEach(line => {
+                    if (yPos > 270) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    doc.text(line, 20, yPos);
+                    yPos += 5;
+                });
+                
+                // Answer
+                doc.setTextColor(...textColor);
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                const displayAnswer = answer || 'Not provided';
+                const answerLines = doc.splitTextToSize(`A: ${displayAnswer}`, 170);
+                answerLines.forEach(line => {
+                    if (yPos > 270) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    doc.text(line, 20, yPos);
+                    yPos += 4;
+                });
+                
+                yPos += 8; // Space between Q&As
+            }
+            
+            // Add all sections with Q&A format
+            addQA('📞 CONTACT INFORMATION', '', true);
+            addQA("What's your full name?", formData.fullName);
+            addQA("What should we call you?", formData.preferredName);
+            addQA("What's your email address?", formData.email);
+            addQA("What's your phone or WhatsApp number?", formData.phone);
+            addQA("Where are you located?", formData.location);
+            addQA("What's the best way and time to contact you?", formData.contactPreference);
+            
+            addQA('🎓 ACADEMIC BACKGROUND', '', true);
+            addQA("What's your current institution and program?", formData.currentInstitution);
+            addQA("What year/semester are you currently in?", formData.yearOfStudy);
+            addQA("What are your current grades or GPA?", formData.grades);
+            addQA("Do you have any previous degrees or diplomas?", formData.previousDegrees);
+            addQA("Which credits or modules do you want to transfer?", formData.creditsToTransfer);
+            addQA("Have you tried transferring credits before?", formData.priorTransferAttempts);
+            
+            addQA('🎯 GOALS & MOTIVATIONS', '', true);
+            addQA("Why are you considering credit transfer?", formData.whyTransfer);
+            addQA("What's your ultimate goal with this transfer?", formData.ultimateGoal);
+            addQA("What obstacles or challenges have you faced?", formData.obstacles);
+            addQA("What worries you most about the transfer process?", formData.worries);
+            addQA("How soon do you want to complete this transfer?", formData.timeline);
+            
+            addQA('⚙️ PREFERENCES & DECISION FACTORS', '', true);
+            addQA("What's your preferred learning style?", formData.learningStyle);
+            addQA("Who influences your educational decisions?", formData.keyInfluencers);
+            addQA("What's your budget range for this service?", formData.budgetRange);
+            addQA("How would you prefer to pay?", formData.paymentPreferences);
+            addQA("What are your interests and career aspirations?", formData.uniqueInterests);
+            
+            addQA('🧠 PERSONAL INSIGHTS', '', true);
+            addQA("How would you rate yourself on taking risks?", `${formData.riskAversion}/10 - ${getRiskDescription(formData.riskAversion)}`);
+            addQA("What's your biggest academic achievement so far?", formData.academicAchievement);
+            addQA("Describe your ideal study environment", formData.idealStudyEnvironment);
+            addQA("What are your top 3 values when choosing an institution?", formData.topValues);
+            addQA("What hobbies or passions can we connect with you about?", formData.hobbiesPassions);
+            
+            // Add page numbers
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Student Profile Report - Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
+            }
+            
+            // Download
+            const fileName = `${formData.fullName?.replace(/\s+/g, '_') || 'Student'}_Profile_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+        }
+        
+        function getRiskDescription(score) {
+            const descriptions = {
+                1: "Very Risk-Averse", 2: "Highly Cautious", 3: "Cautious", 4: "Somewhat Cautious",
+                5: "Balanced", 6: "Slightly Adventurous", 7: "Adventurous", 8: "Risk-Taking",
+                9: "High Risk-Taker", 10: "Extreme Risk-Taker"
+            };
+            return descriptions[score] || "Balanced";
+        }
+
+        function restart() {
+            // Clear form
+            document.getElementById('mainForm').reset();
+            document.getElementById('rangeValue').textContent = '5';
+            
+            // Reset display
+            document.getElementById('completion').classList.remove('active');
+            document.getElementById('completion').style.display = 'none';
+            document.getElementById('hero').style.display = 'block';
+            document.getElementById('mainForm').classList.remove('active');
+            document.getElementById('mainForm').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
